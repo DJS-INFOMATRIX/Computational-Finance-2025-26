@@ -1,0 +1,205 @@
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.linear_model import LinearRegression # Import Linear Regression
+
+# Fetch Meta stock data
+ticker = 'META'
+df = yf.download(ticker, start='2022-01-01', end='2025-09-01')
+
+# Calculate indicators
+close = df['Close']
+
+# EMA (20)
+df['EMA20'] = close.ewm(span=20, adjust=False).mean()
+
+# SMA (50)
+df['SMA50'] = close.rolling(window=50).mean()
+
+# Bollinger Bands (SMA50 ± 2 std dev)
+rolling_std = close.rolling(window=50).std()
+df['Bollinger_Upper'] = df['SMA50'] + 2 * rolling_std.iloc[:, 0]
+df['Bollinger_Lower'] = df['SMA50'] - 2 * rolling_std.iloc[:, 0]
+
+# RSI (14)
+delta = close.diff()
+gain = delta.where(delta > 0, 0)
+loss = -delta.where(delta < 0, 0)
+avg_gain = gain.rolling(window=14).mean()
+avg_loss = loss.rolling(window=14).mean()
+rs = avg_gain / avg_loss.replace(0, np.nan)
+df['RSI'] = 100 - (100 / (1 + rs))
+
+# MACD (12-26 EMAs)
+ema_12 = close.ewm(span=12, adjust=False).mean()
+ema_26 = close.ewm(span=26, adjust=False).mean()
+df['MACD'] = ema_12 - ema_26
+df['MACD_signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
+
+# Fibonacci Retracement (Using entire high and low)
+high = df['High'].max()
+low = df['Low'].min()
+diff = high - low
+
+fib_levels = {
+    'Fib_0%': high,
+    'Fib_23.6%': high - 0.236 * diff,
+    'Fib_38.2%': high - 0.382 * diff,
+    'Fib_50%': high - 0.5 * diff,
+    'Fib_61.8%': high - 0.618 * diff,
+    'Fib_100%': low
+}
+
+# Prepare features for ML classification model
+# Use today's features to predict if next day's close price will go up (1) or not (0)
+df['Target_Classification'] = (df['Close'].shift(-1) > df['Close']).astype(int)
+
+# Drop rows with NaN values created by indicators for classification model
+df_classification = df.dropna().copy() # Create a copy to avoid SettingWithCopyWarning
+
+# Use only indicators as features for classification
+features_classification = ['EMA20', 'SMA50', 'RSI', 'MACD', 'MACD_signal',
+                           'Bollinger_Upper', 'Bollinger_Lower']
+
+X_classification = df_classification[features_classification]
+y_classification = df_classification['Target_Classification']
+
+# Train-test split for classification
+X_train_classification, X_test_classification, y_train_classification, y_test_classification = train_test_split(X_classification, y_classification, shuffle=False, test_size=0.2)
+
+# Enhanced hyperparameter grid for Decision Tree
+param_grid = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': list(range(3, 21)),
+    'min_samples_split': [2, 5, 10, 15],
+    'min_samples_leaf': [1, 2, 4, 6],
+    'max_features': [None, 'sqrt']
+}
+
+grid_search = GridSearchCV(
+    DecisionTreeClassifier(random_state=0),
+    param_grid,
+    cv=5,
+    n_jobs=-1,
+    verbose=2,
+    scoring='accuracy'
+)
+
+grid_search.fit(X_train_classification, y_train_classification)
+
+best_model_classification = grid_search.best_estimator_
+print(f"Best Decision Tree Parameters: {grid_search.best_params_}")
+print(f"Best Cross-Validation Accuracy: {grid_search.best_score_:.4f}")
+
+# Prediction & evaluation for classification
+y_pred_classification = best_model_classification.predict(X_test_classification)
+print("Classification Test Accuracy:", accuracy_score(y_test_classification, y_pred_classification))
+print(classification_report(y_test_classification, y_pred_classification))
+
+# Plot Feature Importance
+importances = best_model_classification.feature_importances_
+indices = np.argsort(importances)[::-1]
+feature_names = X_classification.columns
+
+plt.figure(figsize=(10,6))
+plt.title("Feature Importances - Decision Tree Classification")
+plt.bar(range(len(importances)), importances[indices])
+plt.xticks(range(len(importances)), feature_names[indices], rotation=45)
+plt.show()
+
+# --- Price Prediction Model ---
+
+# Prepare data for regression model
+# Use today's features to predict the next day's close price
+df['Target_Regression'] = df['Close'].shift(-1)
+
+# Drop rows with NaN values for regression model
+df_regression = df.dropna().copy() # Create a copy
+
+# Use all indicators and Close price as features for regression
+features_regression = ['Close', 'EMA20', 'SMA50', 'RSI', 'MACD', 'MACD_signal',
+                       'Bollinger_Upper', 'Bollinger_Lower']
+
+X_regression = df_regression[features_regression]
+y_regression = df_regression['Target_Regression']
+
+# Train-test split for regression
+X_train_regression, X_test_regression, y_train_regression, y_test_regression = train_test_split(X_regression, y_regression, shuffle=False, test_size=0.2)
+
+# Train a Linear Regression model
+model_regression = LinearRegression()
+model_regression.fit(X_train_regression, y_train_regression)
+
+# Make predictions on the test set
+y_pred_regression = model_regression.predict(X_test_regression)
+
+# Predict the next 3 days' prices
+last_day_features = df_regression[features_regression].iloc[-1].values.reshape(1, -1)
+future_predictions = []
+
+for _ in range(3):
+    next_day_prediction = model_regression.predict(last_day_features)[0]
+    future_predictions.append(next_day_prediction)
+    # For the next prediction, use the predicted price as the 'Close' feature
+    last_day_features[0][features_regression.index('Close')] = next_day_prediction
+    # You might want to update other features based on how they relate to the new close price
+    # For simplicity here, we only update the 'Close' feature in the features used for prediction
+
+
+print("\n--- Price Prediction ---")
+print("Predicted prices for the next 3 days:", future_predictions)
+
+# Plotting actual vs predicted prices for the test set
+plt.figure(figsize=(15, 6))
+plt.plot(y_test_regression.index, y_test_regression, label='Actual Close Price', color='blue')
+plt.plot(X_test_regression.index, y_pred_regression, label='Predicted Close Price', color='red', linestyle='--')
+plt.title(f"{ticker} Actual vs Predicted Close Price (Test Set)")
+plt.xlabel("Date")
+plt.ylabel("Close Price")
+plt.legend()
+plt.show()
+
+# Plotting stock close price with indicators
+plt.figure(figsize=(15,10))
+plt.plot(df['Close'], label='Close Price')
+plt.plot(df['EMA20'], label='EMA 20')
+plt.plot(df['SMA50'], label='SMA 50')
+plt.fill_between(df.index, df['Bollinger_Upper'], df['Bollinger_Lower'], color='grey', alpha=0.3, label='Bollinger Bands')
+plt.title(f"{ticker} Close Price and Technical Indicators")
+plt.legend()
+plt.show()
+
+# Plot RSI and MACD
+fig, axs = plt.subplots(2, 1, figsize=(15,8), sharex=True)
+
+axs[0].plot(df['RSI'], label='RSI', color='purple')
+axs[0].axhline(70, color='red', linestyle='--')
+axs[0].axhline(30, color='green', linestyle='--')
+axs[0].set_title('RSI')
+axs[0].legend()
+
+axs[1].plot(df['MACD'], label='MACD', color='blue')
+axs[1].plot(df['MACD_signal'], label='MACD Signal', color='red')
+axs[1].set_title('MACD')
+axs[1].legend()
+
+plt.show()
+
+# Plot Fibonacci Retracement separately on price chart
+plt.figure(figsize=(15,8))
+plt.plot(df['Close'], label='Close Price')
+
+for level_name, level_price in fib_levels.items():
+    # Check if level_price is a pandas Series and extract the value
+    price_value = level_price.iloc[0] if isinstance(level_price, pd.Series) else level_price
+    plt.hlines(price_value, df.index[0], df.index[-1], colors='orange', linestyles='dashed')
+    plt.text(df.index[-1], price_value, f'{level_name} {price_value:.2f}', color='orange')
+
+
+plt.title(f"{ticker} Close Price with Fibonacci Retracement Levels")
+plt.legend()
+plt.show()
