@@ -12,7 +12,7 @@ This folder contains neural network implementations for computational finance ap
 - **Models**: 6 AI models including ensemble methods
 - **Tech Stack**: Python, NumPy, Flask, Modern Web UI
 
-**📁 Location**: `jeevesh/`
+**📁 Location**: `Project 3 - Neural Natworks/jeevesh/`
 
 **🎯 Key Achievements**:
 - Custom neural network implementation from scratch
@@ -29,25 +29,26 @@ This folder contains neural network implementations for computational finance ap
 ```
 Project 3 - Neural Networks/
 ├── README.md (this file)
-└── jeevesh/
-    ├── 🧠 Core AI Models
-    │   ├── neural_network.py
-    │   ├── enhanced_models.py
-    │   ├── logistic_regression.py
-    │   ├── ensemble_model.py
-    │   └── advanced_features.py
-    ├── 🌐 Web Application
-    │   ├── app.py
-    │   └── templates/index.html
-    ├── 📊 Data & Analysis
-    │   ├── data_generator.py
-    │   ├── main.py
-    │   └── experiment.py
-    └── 📚 Documentation
-        ├── README.md
-        ├── PROJECT_OVERVIEW.md
-        ├── FINAL_SUMMARY.md
-        └── IMPROVEMENTS_SUMMARY.md
+└── Project 3 - Neural Natworks/
+    └── jeevesh/
+        ├── 🧠 Core AI Models
+        │   ├── neural_network.py
+        │   ├── enhanced_models.py
+        │   ├── logistic_regression.py
+        │   ├── ensemble_model.py
+        │   └── advanced_features.py
+        ├── 🌐 Web Application
+        │   ├── app.py
+        │   └── templates/index.html
+        ├── 📊 Data & Analysis
+        │   ├── data_generator.py
+        │   ├── main.py
+        │   └── experiment.py
+        └── 📚 Documentation
+            ├── README.md
+            ├── PROJECT_OVERVIEW.md
+            ├── FINAL_SUMMARY.md
+            └── IMPROVEMENTS_SUMMARY.md
 ```
 
 ## 🎓 Learning Outcomes
