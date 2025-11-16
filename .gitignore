@@ -1,0 +1,27 @@
+# Git ignore file
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+# C extension
+*.so
+# Distribution / packaging
+.Python
+build/
+bdist/
+abuild/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+# env vars
+.env
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
