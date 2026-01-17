@@ -1,0 +1,23 @@
+# Environment Variables
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/
+
+# Local Data Cache
+data/cache/
