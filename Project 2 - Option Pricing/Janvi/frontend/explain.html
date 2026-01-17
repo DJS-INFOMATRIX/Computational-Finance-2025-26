@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Black-Scholes Works - Glass Box Option Strategist</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📊 The Glass Box Option Strategist</h1>
+            <p>Understand option pricing with complete transparency</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Strategy Builder</a></li>
+                <li><a href="explain.html" class="active">How Black-Scholes Works</a></li>
+                <li><a href="time_machine.html">Time Machine</a></li>
+                <li><a href="stress_test.html">Stress Test</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2>🎓 Understanding Black-Scholes Option Pricing</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                The Black-Scholes model is the most widely-used method for pricing European options. 
+                Instead of being a "black box," this page explains exactly how it works in plain English.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>The Formula</h2>
+            <p>For a <strong>Call Option</strong>:</p>
+            <div class="formula">
+C = S × N(d₁) - K × e<sup>-rT</sup> × N(d₂)
+            </div>
+            
+            <p>For a <strong>Put Option</strong>:</p>
+            <div class="formula">
+P = K × e<sup>-rT</sup> × N(-d₂) - S × N(-d₁)
+            </div>
+            
+            <p>Where d₁ and d₂ are calculated as:</p>
+            <div class="formula">
+d₁ = [ln(S/K) + (r + σ²/2)T] / (σ√T)
+d₂ = d₁ - σ√T
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>What Each Variable Means</h2>
+            <div class="grid grid-2">
+                <div class="explanation">
+                    <h4>S - Current Stock Price</h4>
+                    <p>
+                        The current market price of the underlying stock. Higher stock prices increase 
+                        call option values and decrease put option values.
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>K - Strike Price</h4>
+                    <p>
+                        The price at which you can buy (call) or sell (put) the stock. 
+                        This is fixed when you enter the option contract.
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>T - Time to Expiration</h4>
+                    <p>
+                        Measured in years. More time = more value because there's more opportunity 
+                        for the stock to move in your favor.
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>r - Risk-Free Rate</h4>
+                    <p>
+                        The theoretical return on a risk-free investment (like Treasury bills). 
+                        Usually around 3-5%. Affects the present value of the strike price.
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>σ (sigma) - Volatility</h4>
+                    <p>
+                        How much the stock price fluctuates, measured as annual standard deviation. 
+                        Higher volatility = higher option prices (both calls and puts).
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>N(x) - Normal Distribution</h4>
+                    <p>
+                        The cumulative normal distribution function. This gives us probabilities 
+                        based on the assumption that stock returns follow a normal distribution.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Understanding d₁ and d₂</h2>
+            
+            <div class="explanation">
+                <h4>What is d₁?</h4>
+                <p>
+                    d₁ represents the <strong>standardized distance</strong> from the current stock price 
+                    to the strike price, adjusted for expected growth and volatility. It's used to calculate 
+                    the probability-weighted stock price component.
+                </p>
+                <p>
+                    In practical terms: <strong>N(d₁) is related to Delta</strong> - how much the option 
+                    price changes when the stock price moves by $1.
+                </p>
+            </div>
+            
+            <div class="explanation">
+                <h4>What is d₂?</h4>
+                <p>
+                    d₂ = d₁ - σ√T adjusts d₁ downward by the volatility over time. It represents the 
+                    probability that the option will expire in-the-money (be worth exercising).
+                </p>
+                <p>
+                    In practical terms: <strong>N(d₂) is the probability of exercise</strong> - roughly 
+                    the chance this option will be profitable at expiration.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Intrinsic Value vs. Time Value</h2>
+            
+            <div class="grid grid-2">
+                <div class="explanation">
+                    <h4>Intrinsic Value</h4>
+                    <p>
+                        The value if you exercised the option <strong>right now</strong>:
+                    </p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Call:</strong> max(S - K, 0)</li>
+                        <li><strong>Put:</strong> max(K - S, 0)</li>
+                    </ul>
+                    <p>
+                        If the intrinsic value is zero, the option is "out of the money."
+                    </p>
+                </div>
+                
+                <div class="explanation">
+                    <h4>Time Value</h4>
+                    <p>
+                        The premium beyond intrinsic value that accounts for:
+                    </p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Time until expiration</li>
+                        <li>Volatility</li>
+                        <li>Interest rates</li>
+                        <li>Potential for future profit</li>
+                    </ul>
+                    <p>
+                        Time value = Total Option Price - Intrinsic Value
+                    </p>
+                </div>
+            </div>
+            
+            <div class="explanation" style="margin-top: 20px;">
+                <h4>💡 Key Insight</h4>
+                <p>
+                    At expiration, time value drops to zero! Your option is worth only its intrinsic value. 
+                    This is why options lose value over time (theta decay).
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Why Does Volatility Increase Option Prices?</h2>
+            <p style="font-size: 1.05rem; line-height: 1.8;">
+                Think of volatility as "potential." Higher volatility means the stock could move dramatically 
+                in either direction. Since options have <strong>limited downside</strong> (you can't lose more 
+                than the premium) but <strong>unlimited upside</strong> (for calls) or substantial upside (for puts), 
+                more movement = more profit potential.
+            </p>
+            
+            <div class="grid grid-2" style="margin-top: 20px;">
+                <div class="explanation">
+                    <h4>Low Volatility (10%)</h4>
+                    <p>Stock likely stays near current price. Small chance of big moves. Lower option prices.</p>
+                </div>
+                <div class="explanation">
+                    <h4>High Volatility (50%)</h4>
+                    <p>Stock could move significantly. Higher chance of profit. Higher option prices.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>How Time Decay Works (Theta)</h2>
+            <p style="font-size: 1.05rem; line-height: 1.8;">
+                Every day that passes, your option loses some time value. This is called <strong>theta decay</strong>.
+            </p>
+            
+            <div class="explanation">
+                <h4>Time Decay Accelerates</h4>
+                <p>
+                    Theta decay is <strong>not linear</strong>. Options lose value slowly at first, then rapidly 
+                    in the final weeks before expiration. This is why many traders avoid holding options into 
+                    the last 30 days.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Example:</strong> An option might lose $0.05/day with 60 days left, but $0.30/day 
+                    with 10 days left.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Interactive Example</h2>
+            <p>Calculate a sample option to see all the intermediate values:</p>
+            
+            <div id="error-container" class="hidden"></div>
+            
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label>Stock Price (S)</label>
+                    <input type="number" id="exampleS" value="100" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Strike Price (K)</label>
+                    <input type="number" id="exampleK" value="105" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Days to Expiration</label>
+                    <input type="number" id="exampleDays" value="30" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Volatility (σ)</label>
+                    <input type="number" id="exampleSigma" value="0.25" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Risk-Free Rate (r)</label>
+                    <input type="number" id="exampleR" value="0.05" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label>Option Type</label>
+                    <select id="exampleType">
+                        <option value="call">Call</option>
+                        <option value="put">Put</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="calculateExampleBtn" onclick="calculateExample()">
+                Calculate Option Price
+            </button>
+            
+            <div id="exampleResults" style="display: none; margin-top: 30px;">
+                <h3>Calculation Results</h3>
+                <div class="results" id="exampleMetrics"></div>
+                
+                <div class="explanation" id="exampleExplanation" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Key Takeaways</h2>
+            <div class="explanation">
+                <ul style="margin-left: 20px; line-height: 2;">
+                    <li>✅ Black-Scholes is <strong>not</strong> a black box - it's math you can understand</li>
+                    <li>✅ Option price = Intrinsic Value + Time Value</li>
+                    <li>✅ Higher volatility always increases option prices</li>
+                    <li>✅ Time decay accelerates as expiration approaches</li>
+                    <li>✅ N(d₂) estimates probability of profit at expiration</li>
+                    <li>✅ Understanding these mechanics helps you make better trading decisions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Glass Box Option Strategist | Educational Tool - Not Financial Advice</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/explain.js"></script>
+</body>
+</html>

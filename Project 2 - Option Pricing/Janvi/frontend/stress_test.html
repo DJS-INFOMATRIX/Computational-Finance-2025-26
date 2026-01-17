@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Test - Glass Box Option Strategist</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📊 The Glass Box Option Strategist</h1>
+            <p>Test your strategy under extreme market conditions</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Strategy Builder</a></li>
+                <li><a href="explain.html">How Black-Scholes Works</a></li>
+                <li><a href="time_machine.html">Time Machine</a></li>
+                <li><a href="stress_test.html" class="active">Stress Test</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2>⚡ "What-If" Stress Tester</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                Test how your option strategy performs under various market scenarios. 
+                Understanding worst-case outcomes helps you manage risk effectively.
+            </p>
+        </div>
+
+        <div id="error-container" class="hidden"></div>
+        <div id="success-container" class="hidden"></div>
+
+        <div class="grid grid-2">
+            <!-- Configuration -->
+            <div>
+                <div class="card">
+                    <h2>1. Stock Information</h2>
+                    <div class="form-group">
+                        <label for="ticker">Stock Ticker (Optional)</label>
+                        <input type="text" id="ticker" placeholder="e.g., AAPL">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockPrice">Current Stock Price *</label>
+                        <input type="number" id="stockPrice" step="0.01" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="volatility">Volatility (σ) *</label>
+                        <input type="number" id="volatility" step="0.01" value="0.25" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="riskFreeRate">Risk-Free Rate (r) *</label>
+                        <input type="number" id="riskFreeRate" step="0.001" value="0.05" required>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>2. Add Option Legs</h2>
+                    <div class="form-group">
+                        <label for="optionType">Option Type</label>
+                        <select id="optionType">
+                            <option value="call">Call</option>
+                            <option value="put">Put</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <select id="position">
+                            <option value="buy">Buy (Long)</option>
+                            <option value="sell">Sell (Short)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="strike">Strike Price</label>
+                        <input type="number" id="strike" step="0.01" value="105">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="expirationDays">Days to Expiration</label>
+                        <input type="number" id="expirationDays" value="30" min="1">
+                    </div>
+                    <button class="btn btn-primary" onclick="addLeg()">Add Leg</button>
+                </div>
+
+                <div class="card">
+                    <h2>Current Strategy</h2>
+                    <div id="legsContainer">
+                        <p class="text-center" style="color: var(--text-secondary);">No legs added yet.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" id="stressBtn" onclick="runStressTests()" 
+                        style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    ⚡ Run Stress Tests
+                </button>
+            </div>
+
+            <!-- Results -->
+            <div>
+                <div class="card" id="summaryCard" style="display: none;">
+                    <h2>Risk Summary</h2>
+                    <div id="riskSummary" class="results"></div>
+                    <div class="explanation" id="overallExplanation"></div>
+                </div>
+
+                <div class="card" id="priceStressCard" style="display: none;">
+                    <h2>Price Change Stress Test</h2>
+                    <div class="chart-container">
+                        <canvas id="priceStressChart"></canvas>
+                    </div>
+                    <div class="explanation" id="priceExplanation"></div>
+                </div>
+
+                <div class="card" id="volStressCard" style="display: none;">
+                    <h2>Volatility Stress Test</h2>
+                    <div class="chart-container">
+                        <canvas id="volStressChart"></canvas>
+                    </div>
+                    <div class="explanation" id="volExplanation"></div>
+                </div>
+
+                <div class="card" id="timeDecayCard" style="display: none;">
+                    <h2>Time Decay Analysis</h2>
+                    <div class="chart-container">
+                        <canvas id="timeDecayChart"></canvas>
+                    </div>
+                    <div class="explanation" id="timeExplanation"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="interactiveCard" style="display: none; margin-top: 30px;">
+            <h2>🎛️ Interactive Scenario Testing</h2>
+            <p>Adjust the sliders below to see real-time impact on your strategy:</p>
+            
+            <div class="grid grid-3">
+                <div class="slider-container">
+                    <label>Stock Price Change</label>
+                    <input type="range" id="priceSlider" min="-50" max="50" value="0" step="1" 
+                           oninput="updateInteractive()">
+                    <span class="slider-value" id="priceValue">0%</span>
+                </div>
+                
+                <div class="slider-container">
+                    <label>Volatility Change</label>
+                    <input type="range" id="volSlider" min="-50" max="100" value="0" step="5" 
+                           oninput="updateInteractive()">
+                    <span class="slider-value" id="volValue">0%</span>
+                </div>
+                
+                <div class="slider-container">
+                    <label>Days Forward</label>
+                    <input type="range" id="timeSlider" min="0" max="30" value="0" step="1" 
+                           oninput="updateInteractive()">
+                    <span class="slider-value" id="timeValue">0 days</span>
+                </div>
+            </div>
+            
+            <div class="results" id="interactiveResults" style="margin-top: 30px;">
+                <h3>Current Scenario</h3>
+                <div id="scenarioMetrics"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Glass Box Option Strategist | Educational Tool - Not Financial Advice</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/stress_test.js"></script>
+</body>
+</html>

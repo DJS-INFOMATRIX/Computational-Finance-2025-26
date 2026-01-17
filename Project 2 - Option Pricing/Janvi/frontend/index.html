@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Builder - Glass Box Option Strategist</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📊 The Glass Box Option Strategist</h1>
+            <p>Build and analyze option strategies with complete transparency</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html" class="active">Strategy Builder</a></li>
+                <li><a href="explain.html">How Black-Scholes Works</a></li>
+                <li><a href="time_machine.html">Time Machine</a></li>
+                <li><a href="stress_test.html">Stress Test</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="error-container" class="hidden"></div>
+        <div id="success-container" class="hidden"></div>
+
+        <div class="grid grid-2">
+            <!-- Left Column: Input Form -->
+            <div>
+                <div class="card">
+                    <h2>1. Stock Information</h2>
+                    <div class="form-group">
+                        <label for="ticker">Stock Ticker (Optional)</label>
+                        <input type="text" id="ticker" placeholder="e.g., AAPL">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockPrice">Current Stock Price *</label>
+                        <input type="number" id="stockPrice" step="0.01" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="volatility">Volatility (σ) *</label>
+                        <input type="number" id="volatility" step="0.01" value="0.25" required>
+                        <small>Annual volatility (e.g., 0.25 = 25%)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="riskFreeRate">Risk-Free Rate (r) *</label>
+                        <input type="number" id="riskFreeRate" step="0.001" value="0.05" required>
+                        <small>Annual rate (e.g., 0.05 = 5%)</small>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>2. Add Option Legs</h2>
+                    <div class="form-group">
+                        <label for="optionType">Option Type</label>
+                        <select id="optionType">
+                            <option value="call">Call</option>
+                            <option value="put">Put</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <select id="position">
+                            <option value="buy">Buy (Long)</option>
+                            <option value="sell">Sell (Short)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="strike">Strike Price</label>
+                        <input type="number" id="strike" step="0.01" value="105">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity (Contracts)</label>
+                        <input type="number" id="quantity" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="expirationDays">Days to Expiration</label>
+                        <input type="number" id="expirationDays" value="30" min="1">
+                    </div>
+                    <button class="btn btn-primary" onclick="addLeg()">Add Leg to Strategy</button>
+                </div>
+
+                <div class="card">
+                    <h2>3. Current Strategy Legs</h2>
+                    <div id="legsContainer">
+                        <p class="text-center" style="color: var(--text-secondary);">No legs added yet. Add your first option above.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-large" id="calculateBtn" onclick="calculateStrategy()" style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    Calculate Strategy
+                </button>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div>
+                <div class="card" id="resultsCard" style="display: none;">
+                    <h2>Strategy Results</h2>
+                    
+                    <h3>Cost Analysis</h3>
+                    <div id="costResults" class="results"></div>
+                    
+                    <h3>Risk Metrics</h3>
+                    <div id="riskResults" class="results"></div>
+                    
+                    <div class="explanation">
+                        <h4>📖 What This Means</h4>
+                        <p id="explanationText"></p>
+                    </div>
+
+                    <h3>Individual Leg Prices</h3>
+                    <div id="legDetails"></div>
+                </div>
+
+                <div class="card" id="chartCard" style="display: none;">
+                    <h2>Payoff Diagram</h2>
+                    <div class="chart-container">
+                        <canvas id="payoffChart"></canvas>
+                    </div>
+                    <div id="chartExplanation" class="explanation"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Glass Box Option Strategist | Educational Tool - Not Financial Advice</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/strategy.js"></script>
+</body>
+</html>

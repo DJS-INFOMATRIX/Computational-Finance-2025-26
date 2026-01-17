@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Machine - Glass Box Option Strategist</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📊 The Glass Box Option Strategist</h1>
+            <p>Test your strategies on historical data</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Strategy Builder</a></li>
+                <li><a href="explain.html">How Black-Scholes Works</a></li>
+                <li><a href="time_machine.html" class="active">Time Machine</a></li>
+                <li><a href="stress_test.html">Stress Test</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2>⏰ Historical Strategy Simulator</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                Travel back in time to see how your option strategy would have performed with real historical data.
+                This helps you understand how strategies behave under actual market conditions.
+            </p>
+        </div>
+
+        <div id="error-container" class="hidden"></div>
+        <div id="success-container" class="hidden"></div>
+
+        <div class="grid grid-2">
+            <!-- Configuration -->
+            <div>
+                <div class="card">
+                    <h2>1. Select Stock and Date</h2>
+                    <div class="form-group">
+                        <label for="ticker">Stock Ticker *</label>
+                        <input type="text" id="ticker" placeholder="e.g., AAPL, TSLA, SPY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Historical Start Date *</label>
+                        <input type="date" id="startDate" required>
+                        <small>The date when you would have entered the strategy</small>
+                    </div>
+                    <button class="btn btn-secondary" onclick="checkDateRange()">
+                        Check Data Availability
+                    </button>
+                    <div id="dateRangeInfo" style="margin-top: 10px;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>2. Strategy Configuration</h2>
+                    <div class="form-group">
+                        <label for="volatility">Volatility (σ)</label>
+                        <input type="number" id="volatility" step="0.01" value="0.25">
+                        <small>Leave blank to use historical volatility</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="riskFreeRate">Risk-Free Rate (r)</label>
+                        <input type="number" id="riskFreeRate" step="0.001" value="0.05">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>3. Add Option Legs</h2>
+                    <div class="form-group">
+                        <label for="optionType">Option Type</label>
+                        <select id="optionType">
+                            <option value="call">Call</option>
+                            <option value="put">Put</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <select id="position">
+                            <option value="buy">Buy (Long)</option>
+                            <option value="sell">Sell (Short)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="strike">Strike Price</label>
+                        <input type="number" id="strike" step="0.01" value="105">
+                        <small>Can be adjusted after checking stock price</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity (Contracts)</label>
+                        <input type="number" id="quantity" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="expirationDays">Days to Expiration</label>
+                        <input type="number" id="expirationDays" value="30" min="1">
+                    </div>
+                    <button class="btn btn-primary" onclick="addLeg()">Add Leg</button>
+                </div>
+
+                <div class="card">
+                    <h2>Current Strategy</h2>
+                    <div id="legsContainer">
+                        <p class="text-center" style="color: var(--text-secondary);">No legs added yet.</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" id="simulateBtn" onclick="runSimulation()" 
+                        style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    🚀 Run Historical Simulation
+                </button>
+            </div>
+
+            <!-- Results -->
+            <div>
+                <div class="card" id="resultsCard" style="display: none;">
+                    <h2>Simulation Results</h2>
+                    
+                    <h3>Performance Summary</h3>
+                    <div id="performanceResults" class="results"></div>
+                    
+                    <div class="explanation" id="resultExplanation"></div>
+                </div>
+
+                <div class="card" id="chartCard" style="display: none;">
+                    <h2>Strategy Value Over Time</h2>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" id="stockChartCard" style="display: none;">
+                    <h2>Stock Price Movement</h2>
+                    <div class="chart-container">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Glass Box Option Strategist | Educational Tool - Not Financial Advice</p>
+        </div>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/time_machine.js"></script>
+</body>
+</html>
