@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass Box Option Strategist</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Sidebar / Navigation -->
+        <aside class="glass-panel sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-cube"></i> Glass Box
+            </div>
+
+            <nav class="nav-tabs">
+                <button class="nav-btn active" onclick="switchTab('build')"><i
+                        class="fa-solid fa-screwdriver-wrench"></i> Build</button>
+                <button class="nav-btn" onclick="switchTab('explain')"><i class="fa-solid fa-chalkboard-user"></i>
+                    Explain</button>
+                <button class="nav-btn" onclick="switchTab('timetravel')"><i class="fa-solid fa-timeline"></i> Time
+                    Travel</button>
+            </nav>
+
+            <div class="input-group">
+                <label>Ticker</label>
+                <input type="text" id="ticker" value="SPY">
+            </div>
+
+            <div class="input-group">
+                <label>Underlying Price ($)</label>
+                <input type="number" id="underlying_price" value="450" step="0.01">
+            </div>
+
+            <div class="input-group">
+                <label>Implied Volatility</label>
+                <input type="range" id="vol-slider" min="0" max="1.5" step="0.01" value="0.20"
+                    oninput="updateVolInput(this.value)">
+                <input type="number" id="volatility" value="0.20" step="0.01" onchange="updateVolSlider(this.value)">
+            </div>
+
+            <div class="input-group">
+                <label>Risk-Free Rate</label>
+                <input type="number" id="rate" value="0.045" step="0.001">
+            </div>
+
+            <div style="margin-top: auto;">
+                <button class="btn btn-secondary" onclick="generateReport()">
+                    <i class="fa-solid fa-file-pdf"></i> Download Trust Report
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Tab: Build -->
+            <div id="tab-build" class="tab-content active">
+                <div class="glass-panel" style="padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h2>Strategy Builder</h2>
+                        <button class="btn btn-primary" style="width:auto;" onclick="addLeg()"><i
+                                class="fa-solid fa-plus"></i> Add Leg</button>
+                    </div>
+                    <div id="legs-container">
+                        <!-- Legs go here -->
+                    </div>
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-primary" onclick="analyzeStrategy()">Analyze Strategy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Explain -->
+            <div id="tab-explain" class="tab-content">
+                <!-- Stats -->
+                <div class="dashboard-grid">
+                    <div class="glass-panel stat-card">
+                        <span class="stat-label">Net Cost/Credit</span>
+                        <span class="stat-value" id="val-price">-</span>
+                    </div>
+                    <div class="glass-panel stat-card">
+                        <span class="stat-label">Delta</span>
+                        <span class="stat-value" id="val-delta">-</span>
+                    </div>
+                    <div class="glass-panel stat-card">
+                        <span class="stat-label">Theta</span>
+                        <span class="stat-value" id="val-theta">-</span>
+                    </div>
+                    <div class="glass-panel stat-card">
+                        <span class="stat-label">Vega</span>
+                        <span class="stat-value" id="val-vega">-</span>
+                    </div>
+                </div>
+
+                <!-- Risk Box -->
+                <div class="glass-panel" style="padding: 20px; margin-top: 24px;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; color: #38bdf8;">
+                        <i class="fa-solid fa-shield-heart"></i> Glass Box Risk Explanation
+                    </h3>
+                    <div id="risk-summary" style="line-height: 1.6;">Run analysis to see explanation.</div>
+                </div>
+
+                <!-- Payoff -->
+                <div class="glass-panel chart-container" style="margin-top: 24px;">
+                    <div class="chart-header">
+                        <h2>Payoff Diagram (at Expiration)</h2>
+                    </div>
+                    <div id="payoff-chart" style="width:100%; height:400px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Time Travel -->
+            <div id="tab-timetravel" class="tab-content">
+                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
+                    <button class="btn btn-secondary" onclick="runSimulation()"><i
+                            class="fa-solid fa-clock-rotate-left"></i> Run Backtest</button>
+                    <button class="btn btn-secondary" onclick="runStressTest()"><i class="fa-solid fa-bolt"></i> Run
+                        Stress Test</button>
+                </div>
+
+                <div class="glass-panel chart-container" style="margin-top: 24px;">
+                    <div class="chart-header">
+                        <h2>Historical Simulation (Last 30 Days)</h2>
+                    </div>
+                    <div id="sim-chart" style="width:100%; height:300px;"></div>
+                </div>
+
+                <div class="glass-panel" style="padding: 20px; margin-top: 24px;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; color: #f472b6;">
+                        <i class="fa-solid fa-bolt"></i> Stress Test Results
+                    </h3>
+                    <div id="stress-results" style="line-height: 1.6; color: #94a3b8;">
+                        Run stress test to see scenarios.
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

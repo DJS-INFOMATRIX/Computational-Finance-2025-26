@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+scipy
+numpy
+pandas
+yfinance
+plotly
+reportlab
+python-multipart
+requests
